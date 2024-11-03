@@ -1,1 +1,87 @@
+import unittest
+from ebook import Ebook
+from customer import Customer
+from shopping_cart import ShoppingCart
+from order import Order
+from invoice import Invoice
+from discount import Discount
 
+class TestEbookstore(unittest.TestCase):
+
+    def setUp(self):
+        """Set up the initial state for tests"""
+        self.customer = Customer("Ahmed Ali", "Ahme.ali@gmail.com", True)
+        self.ebook1 = Ebook("E-Book One", "Author A", "2024-08-20", "Fiction", 10.00)
+        self.ebook2 = Ebook("E-Book Two", "Author B", "2024-09-20", "Non-Fiction", 15.00)
+        self.cart = ShoppingCart(self.customer)
+
+    def test_add_ebook_to_catalog(self):
+        """Test adding a new e-book to the catalog"""
+        self.assertEqual(self.ebook1.title, "E-Book One")
+        self.assertEqual(self.ebook1.author, "Author A")
+        self.assertEqual(self.ebook1.price, 10.00)
+
+    def test_modify_ebook(self):
+        """Test modifying an existing e-book"""
+        self.ebook1.price = 12.00
+        self.assertEqual(self.ebook1.price, 12.00)
+
+    def test_remove_ebook(self):
+        """Test removing an e-book (simulation, as no catalog implementation)"""
+        del self.ebook1
+        with self.assertRaises(NameError):
+            print(self.ebook1.title)
+
+    def test_add_customer(self):
+        """Test adding a customer account"""
+        self.assertEqual(self.customer.name, "Ahmed Ali")
+        self.assertEqual(self.customer.contact, "Ahmed.ali@gmail.com")
+        self.assertTrue(self.customer.is_loyalty_member)
+
+    def test_modify_customer(self):
+        """Test modifying a customer's account"""
+        self.customer.contact = "Ahmed.ali@gmail.com"
+        self.assertEqual(self.customer.contact, "Ahmed.ali@gmail.com")
+
+    def test_remove_customer(self):
+        """Test removing a customer account (simulation)"""
+        del self.customer
+        with self.assertRaises(NameError):
+            print(self.customer.name)
+
+    def test_add_ebooks_to_cart(self):
+        """Test adding e-books to the shopping cart"""
+        self.cart.add_ebook(self.ebook1)
+        self.cart.add_ebook(self.ebook2)
+        self.assertIn(self.ebook1, self.cart.ebooks)
+        self.assertIn(self.ebook2, self.cart.ebooks)
+
+    def test_remove_ebook_from_cart(self):
+        """Test removing an e-book from the shopping cart"""
+        self.cart.add_ebook(self.ebook1)
+        self.cart.remove_ebook(self.ebook1)
+        self.assertNotIn(self.ebook1, self.cart.ebooks)
+
+    def test_apply_discount(self):
+        """Test applying a discount for loyalty program members"""
+        self.cart.add_ebook(self.ebook1)
+        self.cart.add_ebook(self.ebook2)
+        discount = Discount("Loyalty Discount", 10)
+        total_price = self.cart.total_price()
+        discounted_price = discount.apply(total_price)
+        self.assertEqual(discounted_price, (10 + 15) * 0.9)
+
+    def test_generate_invoice(self):
+        """Test the generation of an invoice"""
+        self.cart.add_ebook(self.ebook1)
+        self.cart.add_ebook(self.ebook2)
+        order = Order(self.cart)
+        total_amount = self.cart.total_price()
+        discount = Discount("Loyalty Discount", 10)
+        total_after_discount = discount.apply(total_amount)
+        invoice = Invoice(order, total_after_discount)
+        self.assertIn("Invoice for Order:", str(invoice))
+        self.assertIn("Total Amount:", str(invoice))
+
+if __name__ == "__main__":
+    unittest.main()
