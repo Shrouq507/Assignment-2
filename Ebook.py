@@ -1,7 +1,7 @@
 #Ebook.py
 class Ebook:
     """Class for an e-book"""
-    def __init__(self, title: str, author: str, pub_date: str, genre: str, price: float):
+    def __init__(self, title, author, pub_date, genre, price):
         """Initialize an e-book with its details"""
         self.title = title
         self.author = author
@@ -9,6 +9,6 @@ class Ebook:
         self.genre = genre
         self.price = price
 
-    def __str__(self) -> str:
+    def __str__(self):
         """Return a string that shows the e-book info"""
-        return f"{self.title} by {self.author} - {self.genre} (${self.price:.2f})"
+        return self.title + " by " + self.author + " - " + self.genre + " ($" + str(self.price) + ")"
